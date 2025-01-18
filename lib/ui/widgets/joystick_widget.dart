@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 class JoystickWidget extends StatefulWidget {
   final Function(double x, double y) onMove;
@@ -16,7 +16,7 @@ class _JoystickWidgetState extends State<JoystickWidget> {
   @override
   Widget build(BuildContext context) {
     final double knobSize = 80;
-    final double joystickSize = 200;
+    final double joystickSize = 230;
     final double joystickRadius = joystickSize / 2;
 
     return GestureDetector(

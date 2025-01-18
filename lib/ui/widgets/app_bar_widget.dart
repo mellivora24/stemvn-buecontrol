@@ -27,6 +27,15 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       toolbarHeight: 60.0,
       backgroundColor: const Color(0xFFFF7337),
+      // Icon on the left side of the app bar
+      // leading: IconButton(
+      //   icon: const Icon(Icons.help_outline, color: Colors.white, size: 30),
+      //   onPressed: () {
+      //     // Open YouTube video
+      //     const String url = "https://www.youtube.com/watch?v=8Zq5ZzgjJ6I";
+      //     launchURL(url);
+      //   },
+      // ),
     );
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stemvn_bluecontrol/ui/widgets/button_widget.dart';
 import 'package:stemvn_bluecontrol/ui/widgets/app_bar_widget.dart';
 import 'package:stemvn_bluecontrol/ui/widgets/joystick_widget.dart';
+import 'package:stemvn_bluecontrol/controllers/button_controller.dart';
+import 'package:stemvn_bluecontrol/controllers/joystick_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,8 +16,16 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isJoystickLeftVisible = true;
   bool _isJoystickRightVisible = false;
 
+  final buttonPadding = EdgeInsets.all(24.0);
+  final double scaleOfButtonContainer = 230;
+
+  bool _isConnected = false;
+  late ButtonController _buttonController;
+  final JoystickController _joystickController = JoystickController();
+
   @override
   Widget build(BuildContext context) {
+    _buttonController = ButtonController(context);
     return Scaffold(
       appBar: AppBarWidget(title: 'STEMVN BLUECONTROL'),
       body: Row(
@@ -26,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickLeftVisible,
             onJoystickMove: (dx, dy) {
-              print("Left Joystick moved: dx=$dx, dy=$dy");
+              _joystickController.onJoystickMove("JL", dx, dy);
             },
             isLeft: true,
           ),
@@ -36,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickRightVisible,
             onJoystickMove: (dx, dy) {
-              print("Right Joystick moved: dx=$dx, dy=$dy");
+              _joystickController.onJoystickMove("JR", dx, dy);
             },
             isLeft: false,
           ),
@@ -46,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildControlColumn({
+    required bool isLeft,
     required String labelUp,
     required String labelDown,
     required bool isJoystickVisible,
     required Function(double, double) onJoystickMove,
-    required bool isLeft,
   }) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -60,17 +70,17 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 100,
             height: 100,
             label: labelUp,
-            onPressed: () => print("UP pressed"),
+            onPressed: () => {},
           ),
         if (labelDown.isNotEmpty)
           ButtonWidget(
             width: 100,
             height: 100,
             label: labelDown,
-            onPressed: () => print("DOWN pressed"),
+            onPressed: () => {},
           ),
         isJoystickVisible
-            ? JoystickWidget(onMove: onJoystickMove)
+            ? JoystickWidget( onMove: onJoystickMove )
             : _buildSwappedContainer(isLeft),
       ],
     );
@@ -79,23 +89,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSwappedContainer(bool isLeft) {
     if (isLeft) {
       return Container(
-        width: 200,
-        height: 200,
+        width: scaleOfButtonContainer,
+        height: scaleOfButtonContainer,
         color: Colors.transparent,
         child: Column(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT UP pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("LU"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.arrow_upward, color: Colors.white),
                 ),
               ],
@@ -105,19 +115,19 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT LEFT pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("LL"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
                 RawMaterialButton(
-                  onPressed: () => print("LEFT RIGHT pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("LR"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.arrow_forward, color: Colors.white),
                 ),
               ],
@@ -127,11 +137,11 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT DOWN pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("LD"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.arrow_downward, color: Colors.white),
                 ),
               ],
@@ -141,22 +151,22 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       return Container(
-        width: 200,
-        height: 200,
+        width: scaleOfButtonContainer,
+        height: scaleOfButtonContainer,
         color: Colors.transparent,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT UP pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("RU"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.circle_outlined, color: Colors.white),
                 ),
               ],
@@ -166,19 +176,19 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT LEFT pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("RL"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.square_outlined, color: Colors.white),
                 ),
                 RawMaterialButton(
-                  onPressed: () => print("LEFT RIGHT pressed"),
+                  onPressed: () => _buttonController.onButtonPressed("RR"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.warning_amber, color: Colors.white),
                 ),
               ],
@@ -188,11 +198,11 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => print("LEFT DOWN pressed"),
-                  elevation: 2.0,
+                  onPressed: () => _buttonController.onButtonPressed("RD"),
+                  elevation: 5.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(18.0),
+                  padding: buttonPadding,
                   child: const Icon(Icons.cancel_presentation_outlined, color: Colors.white),
                 ),
               ],
@@ -205,68 +215,78 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCenterColumn() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        const SizedBox(height: 30),
         Container(
-          width: 230,
-          height: 100,
+          width: 200,
+          height: 30,
           decoration: BoxDecoration(
-            color: Colors.transparent,
+            color: _isConnected ? Colors.green[400] : Colors.red[400],
             shape: BoxShape.rectangle,
-            border: Border.all(color: Color(0xFFFF7337), width: 3),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
             child: Text(
-              "BLUETOOTH CONNECTED",
+              _isConnected ? "BLE CONNECTED" : "BLE DISCONNECTED",
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 50),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(width: 10),
             ButtonWidget(
               width: 30,
-              height: 120,
+              height: 130,
               label: "SWAP",
               onPressed: () {
                 setState(() {
                   _isJoystickLeftVisible = !_isJoystickLeftVisible;
-                  print("SWAP LEFT pressed");
                 });
               },
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 3),
             IconButton(
               icon: const Icon(Icons.play_arrow),
               iconSize: 50,
               color: Colors.green,
-              onPressed: () => print("BLE CONNECT pressed"),
+              onPressed: () async {
+                bool isConnected = await _buttonController.onButtonPressed("CONNECT", state: _isConnected);
+                setState(() {
+                  _isConnected = isConnected;
+                });
+              },
             ),
-            const SizedBox(width: 20),
             IconButton(
               icon: const Icon(Icons.stop),
               iconSize: 50,
               color: Colors.red,
-              onPressed: () => print("BLE DISCONNECT pressed"),
+              onPressed: () async {
+                bool isConnected = await _buttonController.onButtonPressed("DISCONNECT", state: _isConnected);
+                setState(() {
+                  _isConnected = isConnected;
+                });
+              },
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 3),
             ButtonWidget(
               width: 30,
-              height: 120,
+              height: 130,
               label: "SWAP",
               onPressed: () {
                 setState(() {
                   _isJoystickRightVisible = !_isJoystickRightVisible;
-                  print("SWAP RIGHT pressed");
                 });
               },
             ),
+            const SizedBox(width: 10),
           ],
         ),
       ],

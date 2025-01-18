@@ -8,8 +8,8 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeRight,
     DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]).then((_) {
     runApp(const MyApp());
   });
@@ -21,10 +21,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'STEMVN BlueControl',
       theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
+      title: 'STEMVN BlueControl',
       initialRoute: AppRoutes.home,
+      debugShowCheckedModeBanner: false,
       routes: {
         AppRoutes.home: (context) => const HomeScreen(),
       },
