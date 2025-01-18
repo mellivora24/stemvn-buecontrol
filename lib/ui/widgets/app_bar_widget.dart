@@ -6,8 +6,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   const AppBarWidget({
     Key? key,
-    required this.title,
     this.actions,
+    required this.title,
   }) : super(key: key);
 
   @override
@@ -16,14 +16,17 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: const TextStyle(
-          fontWeight: FontWeight.bold,
           fontSize: 18,
+          letterSpacing: 2.0,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
       ),
-      centerTitle: true,
-      backgroundColor: const Color(0xFFFF7337),
-      elevation: 4.0,
+      elevation: 5.0,
       actions: actions,
+      centerTitle: true,
+      toolbarHeight: 60.0,
+      backgroundColor: const Color(0xFFFF7337),
     );
   }
 
