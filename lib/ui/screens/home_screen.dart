@@ -16,8 +16,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isJoystickLeftVisible = true;
   bool _isJoystickRightVisible = false;
 
-  final buttonPadding = EdgeInsets.all(24.0);
   final double scaleOfButtonContainer = 230;
+  final buttonPadding = EdgeInsets.all(24.0);
 
   bool _isConnected = false;
   late ButtonController _buttonController;
@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickLeftVisible,
             onJoystickMove: (dx, dy) {
-              _joystickController.onJoystickMove("JL", dx, dy);
+              _joystickController.onJoystickMove("L", dx, -dy);
             },
             isLeft: true,
           ),
@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickRightVisible,
             onJoystickMove: (dx, dy) {
-              _joystickController.onJoystickMove("JR", dx, dy);
+              _joystickController.onJoystickMove("R", dx, -dy);
             },
             isLeft: false,
           ),
@@ -101,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("LU"),
+                  onPressed: () => _buttonController.onButtonPressed("F"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("LL"),
+                  onPressed: () => _buttonController.onButtonPressed("L"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("LR"),
+                  onPressed: () => _buttonController.onButtonPressed("R"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("LD"),
+                  onPressed: () => _buttonController.onButtonPressed("B"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("RU"),
+                  onPressed: () => _buttonController.onButtonPressed("T"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("RL"),
+                  onPressed: () => _buttonController.onButtonPressed("V"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -184,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Icon(Icons.square_outlined, color: Colors.white),
                 ),
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("RR"),
+                  onPressed: () => _buttonController.onButtonPressed("G"),
                   elevation: 2.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RawMaterialButton(
-                  onPressed: () => _buttonController.onButtonPressed("RD"),
+                  onPressed: () => _buttonController.onButtonPressed("X"),
                   elevation: 5.0,
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
