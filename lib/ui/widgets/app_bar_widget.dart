@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -10,35 +11,61 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
   }) : super(key: key);
 
+  _openUrl(String url) async {
+    try {
+      await launchUrl(Uri.parse(url));
+    } catch (e) {
+      throw 'Could not launch $url, error: $e';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          letterSpacing: 2.0,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Image.asset(
+            'assets/in_app_logo.png',
+            width: 100.0,
+            height: 100.0,
+          ),
+          Text(
+            title,
+            style: const TextStyle(
+              height: 1.5,
+              fontSize: 20.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => _openUrl('https://stemvn.vn'), // Mở link trợ giúp
+                icon: const Icon(
+                  Icons.help_outline,
+                  color: Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () => _openUrl('https://stemvn.vn'), // Mở link tài liệu
+                icon: const Icon(
+                  Icons.library_books_outlined,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          )
+        ],
       ),
       elevation: 5.0,
-      actions: actions,
       centerTitle: true,
-      toolbarHeight: 60.0,
+      toolbarHeight: 70.0,
       backgroundColor: const Color(0xFFFF7337),
-      // Icon on the left side of the app bar
-      // leading: IconButton(
-      //   icon: const Icon(Icons.help_outline, color: Colors.white, size: 30),
-      //   onPressed: () {
-      //     // Open YouTube video
-      //     const String url = "https://www.youtube.com/watch?v=8Zq5ZzgjJ6I";
-      //     launchURL(url);
-      //   },
-      // ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 10.0);
 }
