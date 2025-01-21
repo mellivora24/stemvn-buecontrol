@@ -8,8 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="stemvn_bluecontrol"
-        android:name="${applicationName}"
+        android:label="STEMVN BlueControl"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

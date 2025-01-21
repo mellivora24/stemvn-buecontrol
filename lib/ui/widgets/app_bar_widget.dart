@@ -23,7 +23,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Image.asset(
             'assets/in_app_logo.png',
@@ -35,6 +35,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             style: const TextStyle(
               height: 1.5,
               fontSize: 20.0,
+              letterSpacing: 2.0,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),

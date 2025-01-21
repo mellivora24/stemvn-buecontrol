@@ -181,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fillColor: const Color(0xFFFF7337),
                   shape: const CircleBorder(),
                   padding: buttonPadding,
-                  child: const Icon(Icons.square_outlined, color: Colors.white),
+                  child: const Icon(Icons.crop_square_outlined, color: Colors.white),
                 ),
                 RawMaterialButton(
                   onPressed: () => _buttonController.onButtonPressed("G"),
