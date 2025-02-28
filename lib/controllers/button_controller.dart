@@ -1,13 +1,11 @@
-// button_controller.dart
-
 import 'package:flutter/material.dart';
 import 'package:stemvn_bluecontrol/bluetooth/ble_manager.dart';
 
 class ButtonController {
-  ButtonController(this.context);
-
   final BuildContext context;
-  final BleManager _bleManager = BleManager();
+  final BleManager _bleManager; // Nhận từ ngoài
+
+  ButtonController(this.context, this._bleManager); // Thêm tham số BleManager
 
   Future<bool> onButtonPressed(String buttonId, {bool? state}) async {
     switch (buttonId) {
@@ -15,53 +13,46 @@ class ButtonController {
         if (state == true) {
           showDialog(
             context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Connect to Device"),
-                content: const Text("Please disconnect from the current device before connecting to a new one."),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("OK"),
-                  ),
-                ],
-              );
-            },
+            builder: (context) => AlertDialog(
+              title: const Text("Connect to Device"),
+              content: const Text("Please disconnect from the current device first."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
           );
           return state!;
         } else {
-          String isConnected = await _showConnectDialog();
-          if (isConnected == "SUCCESS") return true;
-          return state ?? false;
+          String result = await _showConnectDialog();
+          return result == "SUCCESS";
         }
       case "DISCONNECT":
         if (state == false) {
           showDialog(
             context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Disconnect Device"),
-                content: const Text("You are not connected to any device."),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("OK"),
-                  ),
-                ],
-              );
-            },
+            builder: (context) => AlertDialog(
+              title: const Text("Disconnect Device"),
+              content: const Text("You are not connected to any device."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
           );
           return state!;
         } else {
-          String isConnected = await _showDisconnectNotification();
-          if (isConnected == "SUCCESS") return false;
-          return state ?? false;
+          String result = await _showDisconnectNotification();
+          return result != "SUCCESS"; // Trả về false nếu ngắt kết nối thành công
         }
       default:
         sendCommand(buttonId);
-        break;
+        return state ?? false;
     }
-    return false;
   }
 
   Future<String> _showConnectDialog() async {
@@ -94,11 +85,7 @@ class ButtonController {
                         subtitle: Text(deviceInfo["address"]!),
                         onTap: () async {
                           bool isConnected = await _bleManager.connect(deviceInfo["address"]!);
-                          if (isConnected) {
-                            Navigator.of(context).pop("SUCCESS");
-                          } else {
-                            Navigator.of(context).pop("ERROR");
-                          }
+                          Navigator.of(context).pop(isConnected ? "SUCCESS" : "ERROR");
                         },
                       );
                     },
@@ -125,7 +112,7 @@ class ButtonController {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Disconnect Device"),
-          content: const Text("Are you want to disconnect from the device?"),
+          content: const Text("Are you sure you want to disconnect?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop("CANCEL"),
@@ -134,11 +121,7 @@ class ButtonController {
             TextButton(
               onPressed: () async {
                 bool isDisconnected = await _bleManager.disconnect();
-                if (isDisconnected) {
-                  Navigator.of(context).pop("SUCCESS");
-                } else {
-                  Navigator.of(context).pop("ERROR");
-                }
+                Navigator.of(context).pop(isDisconnected ? "SUCCESS" : "ERROR");
               },
               child: const Text("DISCONNECT"),
             ),
@@ -149,6 +132,7 @@ class ButtonController {
   }
 
   void sendCommand(String command) {
+    print("ButtonController sending: $command"); // Debug
     _bleManager.sendData(command);
   }
 }

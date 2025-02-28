@@ -4,16 +4,22 @@ import 'package:permission_handler/permission_handler.dart';
 class BleManager {
   BluetoothDevice? _currentDevice;
   BluetoothCharacteristic? _writeCharacteristic;
+  int _mtu = 23;
 
-  // Quét thiết bị
+  Future<void> _requestPermissions() async {
+    await [
+      Permission.location,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+    ].request();
+  }
+
   Future<List<Map<String, String>>> scanDevices() async {
     await _requestPermissions();
+    final List<Map<String, String>> devices = [];
 
-    List<Map<String, String>> devices = [];
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 3));
-
-    FlutterBluePlus.scanResults.listen((results) {
-      for (var result in results) {
+    final scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+      for (final result in results) {
         if (!devices.any((device) => device["address"] == result.device.id.id)) {
           devices.add({
             "name": result.device.name.isNotEmpty ? result.device.name : "Unknown Device",
@@ -23,22 +29,23 @@ class BleManager {
       }
     });
 
+    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 3));
     await Future.delayed(const Duration(seconds: 3));
-    FlutterBluePlus.stopScan();
+    await FlutterBluePlus.stopScan();
+    await scanSubscription.cancel();
+
     return devices;
   }
 
-  // Kết nối với thiết bị và lưu đặc tính để sử dụng lại
   Future<bool> connect(String deviceAddress) async {
     try {
       _currentDevice = BluetoothDevice.fromId(deviceAddress);
       await _currentDevice!.connect();
 
-      // Lưu đặc tính gửi dữ liệu để sử dụng lại
-      List<BluetoothService> services = await _currentDevice!.discoverServices();
-      for (BluetoothService service in services) {
+      final services = await _currentDevice!.discoverServices();
+      for (final service in services) {
         if (service.uuid == Guid('0000FFE0-0000-1000-8000-00805F9B34FB')) {
-          for (BluetoothCharacteristic characteristic in service.characteristics) {
+          for (final characteristic in service.characteristics) {
             if (characteristic.uuid == Guid('0000FFE1-0000-1000-8000-00805F9B34FB')) {
               _writeCharacteristic = characteristic;
               break;
@@ -47,46 +54,60 @@ class BleManager {
         }
       }
 
-      return _writeCharacteristic != null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Ngắt kết nối với thiết bị
-  Future<bool> disconnect() async {
-    try {
-      if (_currentDevice != null) {
-        await _currentDevice!.disconnect();
-        _currentDevice = null;
-        _writeCharacteristic = null;
-      }
+      _mtu = await _currentDevice!.requestMtu(512);
+      print("Negotiated MTU: $_mtu");
+      print("Characteristic properties: write=${_writeCharacteristic?.properties.write}, writeNoResponse=${_writeCharacteristic?.properties.writeWithoutResponse}");
       return true;
     } catch (e) {
+      print("Error connecting to device: $e");
       return false;
     }
   }
 
-  // Gửi dữ liệu (với đặc tính đã lưu)
-  Future<void> sendData(String data) async {
-    if (_writeCharacteristic != null) {
-      try {
-        List<int> bytes = data.codeUnits;
-
-        // Gửi dữ liệu với chế độ không yêu cầu phản hồi
-        await _writeCharacteristic!.write(bytes, withoutResponse: true);
-      } catch (e) {
-        print("Error sending data: $e");
-      }
-    } else {
-      print("No write characteristic available.");
+  Future<bool> disconnect() async {
+    try {
+      if (_currentDevice == null) return true;
+      await _currentDevice!.disconnect();
+      _currentDevice = null;
+      _writeCharacteristic = null;
+      return true;
+    } catch (e) {
+      print("Error disconnecting device: $e");
+      return false;
     }
   }
 
-  // Yêu cầu quyền Bluetooth và location
-  Future<void> _requestPermissions() async {
-    if (await Permission.location.isDenied) await Permission.location.request();
-    if (await Permission.bluetoothScan.isDenied) await Permission.bluetoothScan.request();
-    if (await Permission.bluetoothConnect.isDenied) await Permission.bluetoothConnect.request();
+  Future<void> sendData(String data) async {
+    if (_currentDevice == null || _writeCharacteristic == null) {
+      print("Cannot send data: Not connected or characteristic not found");
+      return;
+    }
+
+    print("Sending data via BLE: $data"); // Log rõ ràng hơn
+
+    try {
+      String message = '$data\n'; // Đã có \n từ JoystickController
+      final chunkSize = _mtu - 3;
+
+      if (message.length <= chunkSize) {
+        bool useNoResponse = _writeCharacteristic!.properties.writeWithoutResponse;
+        await _writeCharacteristic!.write(
+          message.codeUnits,
+          withoutResponse: useNoResponse,
+        );
+      } else {
+        for (var i = 0; i < message.length; i += chunkSize) {
+          final end = (i + chunkSize < message.length) ? i + chunkSize : message.length;
+          final chunk = message.substring(i, end);
+          bool useNoResponse = _writeCharacteristic!.properties.writeWithoutResponse;
+          await _writeCharacteristic!.write(
+            chunk.codeUnits,
+            withoutResponse: useNoResponse,
+          );
+        }
+      }
+    } catch (e) {
+      print("Error sending data: $e");
+    }
   }
 }

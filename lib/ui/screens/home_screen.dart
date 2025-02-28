@@ -4,6 +4,7 @@ import 'package:stemvn_bluecontrol/ui/widgets/app_bar_widget.dart';
 import 'package:stemvn_bluecontrol/ui/widgets/joystick_widget.dart';
 import 'package:stemvn_bluecontrol/controllers/button_controller.dart';
 import 'package:stemvn_bluecontrol/controllers/joystick_controller.dart';
+import 'package:stemvn_bluecontrol/bluetooth/ble_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,17 +16,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isJoystickLeftVisible = true;
   bool _isJoystickRightVisible = false;
+  bool _isConnected = false;
 
   final double scaleOfButtonContainer = 230;
   final buttonPadding = EdgeInsets.all(24.0);
 
-  bool _isConnected = false;
   late ButtonController _buttonController;
-  final JoystickController _joystickController = JoystickController();
+  late JoystickController _joystickController;
+  final BleManager _bleManager = BleManager(); // Instance duy nhất
+
+  @override
+  void initState() {
+    super.initState();
+    _buttonController = ButtonController(context, _bleManager);
+    _joystickController = JoystickController(_bleManager);
+  }
 
   @override
   Widget build(BuildContext context) {
-    _buttonController = ButtonController(context);
     return Scaffold(
       appBar: AppBarWidget(title: 'STEMVN BLUECONTROL'),
       body: Row(
@@ -36,7 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickLeftVisible,
             onJoystickMove: (dx, dy) {
-              _joystickController.onJoystickMove("L", dx, -dy);
+              if (_isConnected) {
+                _joystickController.onJoystickMove("L", dx, -dy);
+              }
             },
             isLeft: true,
           ),
@@ -46,7 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
             labelDown: "",
             isJoystickVisible: _isJoystickRightVisible,
             onJoystickMove: (dx, dy) {
-              _joystickController.onJoystickMove("R", dx, -dy);
+              if (_isConnected) {
+                _joystickController.onJoystickMove("R", dx, -dy);
+              }
             },
             isLeft: false,
           ),
@@ -80,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => {},
           ),
         isJoystickVisible
-            ? JoystickWidget( onMove: onJoystickMove )
+            ? JoystickWidget(onMove: onJoystickMove)
             : _buildSwappedContainer(isLeft),
       ],
     );
